@@ -3,24 +3,6 @@ from torch.utils.data import Dataset, DataLoader
 import re
 import glob
 
-def extract_exponents_from_file(filename):
-    exponents = []
-    with open(filename, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) < 2:
-                continue  # Skip lines with fewer than 2 columns
-            value_str = parts[1]
-            if 'e' not in value_str:
-                print(f"Skipping non-scientific value '{value_str}' in {filename}")
-                continue
-            try:
-                exponent = int(value_str.split('e')[1])
-                exponents.append(exponent)
-            except ValueError:
-                print(f"Invalid exponent format in '{value_str}' from {filename}")
-    return exponents
-
 def main():
     all_exponents = []
     # Adjust the glob pattern to match your file locations (e.g., '*.txt' or 'data/*.dat')

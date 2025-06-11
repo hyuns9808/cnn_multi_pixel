@@ -1,0 +1,49 @@
+[project]
+name = "cnn_multi_pixel"
+version = "0.1.0"
+description = "Runs either single/multiple CNNs to predict results of multiple pixels."
+authors = [
+    {name = "hyuns9808",email = "78573198+hyuns9808@users.noreply.github.com."}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.poetry]
+packages = [{include = "cnn_multi_pixel", from = "src"}]
+
+[tool.poetry.build]
+script = "src/__main__.py"
+
+[tool.poetry.dependencies]
+contourpy = "1.3.2"
+cycler = "0.12.1"
+filelock = "3.18.0"
+fonttools = "4.58.2"
+fsspec = "2025.5.1"
+greenlet = "3.2.3"
+jinja2 = "3.1.6"
+kiwisolver = "1.4.8"
+markupsafe = "3.0.2"
+matplotlib = "3.10.3"
+mpmath = "1.3.0"
+networkx = "3.4.2"
+numpy = "2.2.6"
+packaging = "25.0"
+pandas = "2.3.0"
+pillow = "11.2.1"
+pyparsing = "3.2.3"
+python-dateutil = "2.9.0.post0"
+pytz = "2025.2"
+pyzmq = "26.4.0"
+scoop = "0.7.2.0"
+seaborn = "0.13.2"
+setuptools = "80.9.0"
+six = "1.17.0"
+sympy = "1.14.0"
+torch = "2.7.1"
+torchvision = "0.22.1"
+typing-extensions = "4.13.2"
+tzdata = "2025.2"
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

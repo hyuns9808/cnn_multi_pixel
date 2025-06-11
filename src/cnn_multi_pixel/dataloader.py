@@ -53,7 +53,7 @@ class TraceDataset(Dataset):
                 # Edge case: value is "-0.00000000e+00" or "0.00000000e+00"
                 # Add more edge cases if needed
                 if value in ["-0.00000000e+00", "0.00000000e+00"]:
-                    valu_arr.append(np.float64(0))
+                    valu_arr.append(np.float32(0))
                 else:
                     try:
                         match = re.search(r"(?<=e-)\d+", value)
