@@ -14,7 +14,8 @@ from .src.cnn_multi_pixel.hyperparams import adc_num, adc_bitwidth, train_batch,
 # Directory hyperparameters
 from .src.cnn_multi_pixel.hyperparams import sub_folder, sub_folder_name, train_trace_folder_names, test_trace_folder_names, trace_type, file_pattern
 # 2) File imports
-from .src.cnn_multi_pixel.preprocessing import get_avg_exponent
+from .src.cnn_multi_pixel.preprocessing_exp import get_avg_exponent
+from .src.cnn_multi_pixel.preprocessing_array import create_trace_arrays
 
 if __name__ == "__main__":
     # 0) Get inputs
@@ -35,17 +36,18 @@ if __name__ == "__main__":
         print("Read file")
     
     # ASSUMING FILE INPUT HERE
-    root_dir = 'root'
-    folder_list = []
-    exponent_list = []
+    trace_root = 'root'
+    train_folder_list = []
+    test_folder_list = []
 
     # 1) Preprocessing
-    # 1-1) Get average exponent from all training files
-    for folder in folder_list:
-        exponent_list.append(get_avg_exponent(folder))
-    final_avg = int(sum(exponent_list) / len(exponent_list)) + 1
+    # 1-1) Get average exponent from all files, BOTH training AND testing
+    print("1) Obtaining average exponent from both training and testing files...")
+    avg_exponent = get_avg_exponent(trace_root, train_folder_list, test_folder_list)
+    print(f"Obtained average exponent value: {avg_exponent}")
     # 1-2) Read files, store normalized values into np arrays
-    preprocess_traces(root_dir, folder_list)
+    print(f"2) Creating trace arrays...")
+    train_traces, test_traces = create_trace_arrays(trace_root, train_folder_list, test_folder_list, avg_exponent)
 
     # 2) Creating dataset/dataloaders
     # 3) Create CNN
