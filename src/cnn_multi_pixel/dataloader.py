@@ -3,12 +3,46 @@ from torch.utils.data import Dataset, DataLoader
 import re
 
 ''' 
+Helper function used to normalize string values with given average exponent value
+Input for initialization:
+    1) strip_val: value before 1e
+    2) e_val: 1e exponent value
+    ex) if input string is "-2.17498915e-03", strip_val = "-2.17498915", e_val = "-03"
+    3) avg_exp: obtained average exponent value.
+Returns:
+    1) new_number: normalized float32 value
+'''
+def process_string(strip_val, e_val, avg_exp):
+    # e_diff: exponent difference from base -8 value
+    e_diff = int(e_val) + avg_exp
+    is_neg = strip_val.startswith('-')
+
+    # Remove negative sign for processing
+    if is_neg:
+        strip_val = strip_val[1:]
+    
+    int_part, dec_part = strip_val.split('.')
+    new_number = int_part + dec_part
+
+    if e_diff < 0:
+        new_number = '0' * abs(e_diff - 1) + new_number
+        new_number = '0.' + new_number
+    else:
+        if e_diff + 1 < len(new_number):
+            new_number = new_number[:e_diff + 1] + '.' + new_number[e_diff + 1:]
+        else:
+            new_number = new_number.ljust(e_diff + 1, '0')
+    new_number = np.float32(new_number)
+
+    return new_number * -1 if is_neg else new_number
+
+''' 
 Class that creates a dataset with given traces
 Input for initialization:
     1) strip_val: value before 1e
     2) e_val: 1e exponent value
     ex) if input string is "-2.17498915e-03", strip_val = "-2.17498915", e_val = "-03"
-    3) e_exp: defined hyperparameter. Mormalizes all values by pow(10, -1*e_exp)
+    3) e_exp: defined hyperparameter. Normalizes all values by pow(10, -1*e_exp)
     Default value is set to 4.
 Returns:
     1) new_number: normalized float64 of string
@@ -21,9 +55,10 @@ class TraceDataset(Dataset):
 
     # file_list: list of FILE NAMES that have been converted
     # cache: actual traces saved that can be reused
-    def __init__(self, file_list, cache=True):
+    def __init__(self, file_list, avg_exp, cache=True):
         self.file_list = file_list
         self.cache     = cache
+        self.avg_exp   = avg_exp
     
     def __len__(self):
         return len(self.file_list)
@@ -47,9 +82,8 @@ class TraceDataset(Dataset):
             header = file.readline()
             #time_arr = []
             valu_arr = []
-            # Fixed error of float32 incorrectly translating values
             for line in file.readlines():
-                time, value = line.strip().split()
+                _, value = line.strip().split()
                 # Edge case: value is "-0.00000000e+00" or "0.00000000e+00"
                 # Add more edge cases if needed
                 if value in ["-0.00000000e+00", "0.00000000e+00"]:
@@ -64,14 +98,6 @@ class TraceDataset(Dataset):
                             else:
                                 strip_val = value[0:10]
                                 strip_val_e = value[11:14]
-                            '''
-                            # Debugging scripts; do not erase
-                            print(f"\tstrip_val: {strip_val}")
-                            print(f"\tstrip_val_e: {strip_val_e}\n")
-                            new_val = process_string(strip_val, strip_val_e)
-                            print(f"\tProcessed: {new_val}")
-                            print(f"\tFloat32 of processed: {np.float32(new_val)}\n")
-                            '''
                             valu_arr.append(process_string(strip_val, strip_val_e))
                     except ValueError as e:
                         print(f"Error parsing value '{value}': {e}")
