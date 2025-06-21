@@ -10,12 +10,12 @@ import re
 # 1) Hyperparameter settings
 # Check "hyperparams.py" file to change settings 
 # ADC hyperparameters
-from .src.cnn_multi_pixel.hyperparams import adc_num, adc_bitwidth, train_batch, split_digital, normalized_digital
+from src.cnn_multi_pixel.hyperparams import adc_num, adc_bitwidth, train_batch, split_digital, normalized_digital
 # Directory hyperparameters
-from .src.cnn_multi_pixel.hyperparams import sub_folder, sub_folder_name, train_trace_folder_names, test_trace_folder_names, trace_type, file_pattern
+from src.cnn_multi_pixel.hyperparams import sub_folder, sub_folder_name, train_trace_folder_names, test_trace_folder_names, trace_type, file_pattern
 # 2) File imports
-from .src.cnn_multi_pixel.preprocessing_exp import get_avg_exponent
-from .src.cnn_multi_pixel.preprocessing_array import create_trace_arrays
+from src.cnn_multi_pixel.preprocessing_exp import get_avg_exponent
+from src.cnn_multi_pixel.preprocessing_array import create_trace_arrays
 
 if __name__ == "__main__":
     # 0) Get inputs
@@ -24,7 +24,7 @@ if __name__ == "__main__":
                     description='Attacks multiple ADCs using either a bitwise or singular attack.',
                     epilog='Bitwise == 1 ADC per 8 bits, singular == 1 ADC for all bits')
     # -c/--cli: Set to "True" to read inputs straight from cli
-    parser.add_argument('-c', '--cli', action='store_True')  # on/off flag
+    parser.add_argument('-c', '--cli', action='store_true')  # on/off flag
     parser.add_argument('-f', '--filename', help='Path to the input file')
     args = parser.parse_args()
 

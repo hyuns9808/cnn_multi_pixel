@@ -20,14 +20,15 @@ def create_norm_array(file_path, avg_exponent):
             if len(parts) < 2:
                 continue  # Skip lines with fewer than 2 columns
             value_str = parts[1]
+            print(value_str)
             if 'e' not in value_str:
                 print(f"Skipping non-scientific value '{value_str}' in {file_path}")
                 continue
             try:
-                value = int(value_str.split('e')[0])
-                exponent = int(value_str.split('e')[1])
+                value = np.float32(value_str.split('e')[0])
+                exponent = np.float32(value_str.split('e')[1])
             except ValueError:
-                print(f"Invalid exponent format in '{value_str}' from {file_path}")
+                raise(f"Invalid exponent format in '{value_str}' from {file_path}")
                 continue
             norm_array.append(np.float32(value*pow(10,exponent-avg_exponent)))
     return np.array(norm_array)
@@ -58,7 +59,7 @@ def create_trace_arrays(trace_root, train_folder_list, test_folder_list, avg_exp
                 if file.endswith(".txt"):
                     file_path = os.path.join(folder_path, file)
                     # file_exponents = list of exponent values from given file 
-                    folder_traces.append(create_norm_array(file_path))
+                    folder_traces.append(create_norm_array(file_path, avg_exponent))
         else:
             raise KeyError(f"Trace folder does not exist: {folder_path}")
         train_traces.append(folder_traces)
@@ -73,7 +74,7 @@ def create_trace_arrays(trace_root, train_folder_list, test_folder_list, avg_exp
                 if file.endswith(".txt"):
                     file_path = os.path.join(folder_path, file)
                     # file_exponents = list of exponent values from given file 
-                    folder_traces.append(create_norm_array(file_path))
+                    folder_traces.append(create_norm_array(file_path, avg_exponent))
         else:
             raise KeyError(f"Trace folder does not exist: {folder_path}")
         test_traces.append(folder_traces)

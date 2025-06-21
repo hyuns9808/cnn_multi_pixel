@@ -59,17 +59,28 @@ def extract_exponents_from_folders(trace_folder_dir, target_folders):
         folder_path = os.path.join(trace_folder_dir, folder)
         if os.path.exists(folder_path):
             folder_name = os.path.basename(folder_path)
-            print(f"Handling: {folder_name}...")
+            print(f"\tHandling folder \"{folder_name}\"...")
+            folder_sum = 0
+            folder_len = 0
             for file in os.listdir(folder_path):
                 if file.endswith(".txt"):
                     file_path = os.path.join(folder_path, file)
                     # file_exponents = list of exponent values from given file 
                     file_exponents = extract_exponents_from_file(file_path)
-                    if min_exp is None or min_exp > min(file_exponents):
-                        min_exp = min(file_exponents)
-                    if max_exp is None or max_exp < max(file_exponents):
-                        max_exp = max(file_exponents)
+                    folder_max = max(file_exponents)
+                    folder_min = min(file_exponents)
                     exp_results[folder_name].append((sum(file_exponents), len(file_exponents)))
+                    folder_sum += sum(file_exponents)
+                    folder_len += len(file_exponents)
+            print(f"\t\tFolder \"{folder_name}\" exponent results:")
+            print(f"\t\tAverage exponent: {int(folder_sum / folder_len)}")
+            print(f"\t\tMax exponent: {folder_max}")
+            print(f"\t\tMinimum exponent: {folder_min}")
+            
+            if max_exp is None or max_exp < folder_max:
+                max_exp = folder_max
+            if min_exp is None or min_exp > folder_min:
+                min_exp = folder_min
         else:
             raise KeyError(f"Trace folder does not exist: {folder_path}")
         
@@ -85,6 +96,7 @@ Returns:
     1) avg_exponent: int; final avg exponent value used to normalize all trace values
 '''
 def get_avg_exponent(trace_root, train_folder_list, test_folder_list):
+    print("Obtaining avg exponent value for both train/test files...")
     # Combine train_folder_list and test_folder_list and get all exponents
     exp_results, min_exp, max_exp = extract_exponents_from_folders(trace_root, train_folder_list + test_folder_list)
     # Get final result
