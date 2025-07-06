@@ -1,0 +1,13 @@
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+# Any subdirectories under ./trace_files
+trace_files/*
+# py_cache files
+src/cnn_multi_pixel/__pycache__

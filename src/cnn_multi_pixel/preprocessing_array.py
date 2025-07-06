@@ -6,6 +6,7 @@ from torch import norm
 
 ''' 
 Function that extracts all values from a SINGLE power trace file and saves it as a np.array
+Does NOT normalize the values; stores RAW traces
 Input:
     1) file_path: string; name of power trace file
 Returns:
@@ -16,19 +17,23 @@ def create_array(file_path):
     pattern = re.compile(r'^\s*time\s+-i\(vdd\)\s*$')
     with open(file_path, 'r') as f:
         for i, line in enumerate(f):
+             # Skip function call for first line if it matches
             if i == 0 and pattern.match(line):
-                continue  # Skip function call for first line if it matches
+                continue
+            # Skip lines with fewer than 2 columns
             parts = line.strip().split()
             if len(parts) < 2:
-                continue  # Skip lines with fewer than 2 columns
+                continue
+            # Check if obtained value is in valid scientific form
             value_str = parts[1]
             if 'e' not in value_str:
                 print(f"Skipping non-scientific value '{value_str}' in {file_path}")
                 continue
+            # Cast to np.float32
             try:
                 value = np.float32(value_str)
             except ValueError:
-                raise(f"Invalid exponent format in '{value_str}' from {file_path}")
+                raise(f"Invalid format in '{value_str}' from {file_path}: Cannot store as np.float32.")
             trace_array.append(value)
     return np.array(trace_array)
 

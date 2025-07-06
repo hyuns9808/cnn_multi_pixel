@@ -21,7 +21,7 @@ def get_matching_files(trace_folder_dir, train_folder_list, test_folder_list, fi
     train_match_dict = defaultdict(list)
     test_match_dict = defaultdict(list)
     pattern = re.compile(rf"{file_pattern}")
-    # CHANGE SEARCH TO MATCH AFTER MEETING
+    # CHANGE SEARCH TO MATCH AFTER SPECIFIC NAMING CONVENTION IS FINALIZED
     # First get matches in training folder
     for folder_name in train_folder_list:
         folder_path = os.path.join(trace_folder_dir, folder_name)
