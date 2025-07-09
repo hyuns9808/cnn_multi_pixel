@@ -3,22 +3,22 @@ import numpy as np
 import re
 import os
 
-''' 
-Function that gets all files from given folders that match the set file name format.
-Input:
-    1) trace_folder_dir: string; raw path to trace folder directory
-    2) train_folder_list: array; list of training trace folders to get avg exponent
-    3) test_folder_list: array; list of testing trace folders to get avg exponent
-    4) file_pattern: string; RegEx expression used to 
-Returns:
-    1) train_match_dict: dictionary; all files with names that match given format
-    Key: string; folder name
-    Value: array of strings; array of names of all files that match given format of key folder
-    2) test_match_dict: dictionary; all files with names that match given format
-    Key: string; folder name
-    Value: array of strings; array of names of all files that match given format of key folder
-'''
 def get_matching_files(trace_folder_dir, train_folder_list, test_folder_list, file_pattern):
+    ''' 
+    Function that gets all files from given folders that match the set file name format.
+    Input:
+        1) trace_folder_dir: string; raw path to trace folder directory
+        2) train_folder_list: array; list of training trace folders to get avg exponent
+        3) test_folder_list: array; list of testing trace folders to get avg exponent
+        4) file_pattern: string; RegEx expression used to 
+    Returns:
+        1) train_match_dict: dictionary; all files with names that match given format
+        Key: string; folder name
+        Value: array of strings; array of names of all files that match given format of key folder
+        2) test_match_dict: dictionary; all files with names that match given format
+        Key: string; folder name
+        Value: array of strings; array of names of all files that match given format of key folder
+    '''
     train_match_dict = defaultdict(list)
     test_match_dict = defaultdict(list)
     pattern = re.compile(rf"{file_pattern}")
@@ -45,14 +45,14 @@ def get_matching_files(trace_folder_dir, train_folder_list, test_folder_list, fi
         
     return train_match_dict, test_match_dict
 
-''' 
-Function that extracts all exponent values from a SINGLE power trace file
-Input:
-    1) file_path: string; name of power trace file
-Returns:
-    1) exponents: list; all exponent values from file
-'''
 def extract_exponents_from_file(file_path):
+    ''' 
+    Function that extracts all exponent values from a SINGLE power trace file
+    Input:
+        1) file_path: string; name of power trace file
+    Returns:
+        1) exponents: list; all exponent values from file
+    '''
     exponents = []
     pattern = re.compile(r'^\s*time\s+-i\(vdd\)\s*$')
     with open(file_path, 'r') as f:
@@ -74,25 +74,25 @@ def extract_exponents_from_file(file_path):
                 continue
     return exponents
 
-''' 
-Function that runs through all trace files within given folder directory
-and gets 1) sum of all exponent values, 2) number of traces
-Input:
-    1) trace_folder_dir: string; raw path to trace folder directory
-    2) train_match_dict: dictionary; all files with names that match given format
-    Key: string; folder name
-    Value: array of strings; array of names of all files that match given format of key folder
-    3) test_match_dict: dictionary; all files with names that match given format
-    Key: string; folder name
-    Value: array of strings; array of names of all files that match given format of key folder
-Returns:
-    1) exp_results: dictionary;
-    key = each folder
-    items = list of (sum(exponent), len(exponent)) tuples per files in folder
-    2) min_exp: int; minimum exponent value
-    3) min_exp: int; maximum exponent value
-'''
 def extract_exponents_from_folders(trace_folder_dir, match_dict, exp_results, min_exp, max_exp):
+    ''' 
+    Function that runs through all trace files within given folder directory
+    and gets 1) sum of all exponent values, 2) number of traces
+    Input:
+        1) trace_folder_dir: string; raw path to trace folder directory
+        2) train_match_dict: dictionary; all files with names that match given format
+        Key: string; folder name
+        Value: array of strings; array of names of all files that match given format of key folder
+        3) test_match_dict: dictionary; all files with names that match given format
+        Key: string; folder name
+        Value: array of strings; array of names of all files that match given format of key folder
+    Returns:
+        1) exp_results: dictionary;
+        key = each folder
+        items = list of (sum(exponent), len(exponent)) tuples per files in folder
+        2) min_exp: int; minimum exponent value
+        3) min_exp: int; maximum exponent value
+    '''
     # Get avg exponent in training traces
     for folder_name, file_list in match_dict.items():
         folder_path = os.path.join(trace_folder_dir, folder_name)
@@ -123,16 +123,16 @@ def extract_exponents_from_folders(trace_folder_dir, match_dict, exp_results, mi
         
     return exp_results, min_exp, max_exp
 
-''' 
-Function that gets final avg exponent from both training/testing trace files
-Input:
-    1) trace_folder_dir: string; raw path to trace folder directory
-    2) train_folder_list: array; list of training trace folders to get avg exponent
-    3) test_folder_list: array; list of testing trace folders to get avg exponent
-Returns:
-    1) avg_exponent: int; final avg exponent value used to normalize all trace values
-'''
 def get_avg_exponent(trace_folder_dir, train_folder_list, test_folder_list):
+    ''' 
+    Function that gets final avg exponent from both training/testing trace files
+    Input:
+        1) trace_folder_dir: string; raw path to trace folder directory
+        2) train_folder_list: array; list of training trace folders to get avg exponent
+        3) test_folder_list: array; list of testing trace folders to get avg exponent
+    Returns:
+        1) avg_exponent: int; final avg exponent value used to normalize all trace values
+    '''
     print("Obtaining avg exponent value for both train/test files...")
     # exp_results: dictionary;
     # Key: each folder
