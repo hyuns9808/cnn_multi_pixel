@@ -123,13 +123,16 @@ def extract_exponents_from_folders(trace_folder_dir, match_dict, exp_results, mi
         
     return exp_results, min_exp, max_exp
 
-def get_avg_exponent(trace_folder_dir, train_folder_list, test_folder_list):
+def get_avg_exponent(trace_folder_dir, train_folder_list, test_folder_list, avg_exp=None):
     ''' 
     Function that gets final avg exponent from both training/testing trace files
     Input:
-        1) trace_folder_dir: string; raw path to trace folder directory
-        2) train_folder_list: array; list of training trace folders to get avg exponent
-        3) test_folder_list: array; list of testing trace folders to get avg exponent
+        1) trace_folder_dir: string; Raw path to trace folder directory
+        2) train_folder_list: array; List of training trace folders to get avg exponent
+        3) test_folder_list: array; List of testing trace folders to get avg exponent
+        4) avg_exp: integer; Average exponent to compare each folder exponent value with.
+        Used ONLY when adding files for training/testing; default value is set to None.
+        ONLY pass a value in this parameter if you are adding files to run a CNN with already normalized files.
     Returns:
         1) avg_exponent: int; final avg exponent value used to normalize all trace values
     '''
@@ -145,9 +148,9 @@ def get_avg_exponent(trace_folder_dir, train_folder_list, test_folder_list):
 
     # Combine train_folder_list and test_folder_list and get all exponents
     print("Analyzing exponent values of training trace files...")
-    exp_results, min_exp, max_exp = extract_exponents_from_folders(trace_folder_dir, train_folder_list, exp_results, min_exp, max_exp)
+    exp_results, min_exp, max_exp = extract_exponents_from_folders(trace_folder_dir, train_folder_list, exp_results, min_exp, max_exp, avg_exp)
     print("Analyzing exponent values of testing trace files...")
-    exp_results, min_exp, max_exp = extract_exponents_from_folders(trace_folder_dir, test_folder_list, exp_results, min_exp, max_exp)
+    exp_results, min_exp, max_exp = extract_exponents_from_folders(trace_folder_dir, test_folder_list, exp_results, min_exp, max_exp, avg_exp)
     # Get final result
     tot_exp_val = 0
     tot_exp_len = 0
@@ -165,12 +168,13 @@ def get_avg_exponent(trace_folder_dir, train_folder_list, test_folder_list):
         tot_exp_len += dir_exp_len
     final_avg = int(tot_exp_val/tot_exp_len)
 
-    # Alert user if average value has extreme decrepancy from min/max values
-    # CHANGE 'decrepancty_val' VAR TO DECREASE/INCREASE DECREPANCY VALUE
-    decrepancty_val = 3
-    if(abs(min_exp + max_exp) / 2 - final_avg >= decrepancty_val):
-        print("WARNING: Resulting avg exponent value has large differences with min/max exponents")
-        print(f"\tResulting avg exponent: {final_avg}")
-        print(f"\tSmallest exponent: {min_exp}")
-        print(f"\tLargest exponent: {max_exp}")
+    if avg_exp is not None:
+        # IF this is an initial run, alert user when average value has extreme decrepancy from min/max values
+        # CHANGE 'decrepancty_val' VAR TO DECREASE/INCREASE DECREPANCY VALUE
+        decrepancty_val = 3
+        if(abs(min_exp + max_exp) / 2 - final_avg >= decrepancty_val):
+            print("WARNING: Resulting avg exponent value has large differences with min/max exponents")
+            print(f"\tResulting avg exponent: {final_avg}")
+            print(f"\tSmallest exponent: {min_exp}")
+            print(f"\tLargest exponent: {max_exp}")
     return final_avg
