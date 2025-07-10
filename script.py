@@ -14,8 +14,8 @@ from hyperparams import adc_num, adc_bitwidth, train_batch, split_digital, norma
 # Directory hyperparameters
 from hyperparams import sub_folder, sub_folder_name, train_trace_folder_names, test_trace_folder_names, trace_type, file_pattern
 # 2) File imports
-from src.cnn_multi_pixel.preprocessing_exp import get_avg_exponent
-from src.cnn_multi_pixel.preprocessing_array import create_trace_arrays
+from src.cnn_multi_pixel.preprocessing_file import get_matching_files
+from src.cnn_multi_pixel.preprocessing_array import create_raw_trace_arrays
 
 if __name__ == "__main__":
     # 0) Get inputs
@@ -39,6 +39,7 @@ if __name__ == "__main__":
     trace_root = 'root'
     train_folder_list = []
     test_folder_list = []
+<<<<<<< HEAD
 
     # 1) Preprocessing
     # 1-1) Get average exponent from all files, BOTH training AND testing
@@ -53,3 +54,26 @@ if __name__ == "__main__":
     # 3) Create CNN
     # 4) Run training
     # 5) Run testing
+=======
+    # Select if initial or additional run
+    is_initial = True
+    
+    # 1) Check if there are any saved raw datasets that correspond to required folder
+    # IMPLEMENT AFTER dataset_raw
+    # 2) For each new folder(no dataset exists) get file list
+    train_dict, test_dict = get_matching_files(trace_root, train_folder_list, test_folder_list, file_pattern)
+    # 3) Convert all files to np.arrays; run subsampling if required
+    train_dict, test_dict = create_raw_trace_arrays(trace_root, train_dict, test_dict, file_pattern)
+    # 4) Create raw dataset
+    # 5) Save raw dataset
+    # 6) Normalize all datasets
+    if is_initial:
+        print("lol")
+    else:
+        print("lol")
+    # 7) Create dataloader
+    # 8) Create CNN
+    # 9) Run training
+    # 10) Run testing
+    # 11) Print results
+>>>>>>> split

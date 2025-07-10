@@ -1,6 +1,7 @@
 import numpy as np
 import re
 import os
+from collections import defaultdict
 
 from torch import norm
 
@@ -37,27 +38,28 @@ def create_array(file_path):
             trace_array.append(value)
     return np.array(trace_array)
 
-''' 
-Function that creates list of np arrays for each train/test dataset
-Input:
-    1) trace_root: string; Raw path to trace folder directory
-    2) train_folder_list: array; List of training trace folders to get avg exponent
-    3) test_folder_list: array; List of testing trace folders to get avg exponent
-Returns:
-    1) train_traces: dictionary;
-    Key: string; Training folder name used to create trace arrays
-    Value: tuple; tuple[0] = file name
-    tuple[1] = array of np.float32; Array of normalized values converted to np.float32
-    2) test_traces: dictionary;
-    Key: string; Testing folder name used to create trace arrays
-    Value: tuple; tuple[0] = file name
-    tuple[1] = array of np.float32; Array of normalized values converted to np.float32
-'''
-def create_trace_arrays(trace_root, train_match_dict, test_match_dict):
-    train_traces = {}
-    test_traces = {}
+def create_raw_trace_arrays(trace_root, train_dict, test_dict, file_pattern):
+    ''' 
+    Function that converts text trace values to list of np arrays for each train/test dataset
+    Input:
+        1) trace_root: string; Raw path to trace folder directory
+        2) train_folder_list: array; List of training trace folders to be converted
+        3) test_folder_list: array; List of testing trace folders to be converted
+        4) file_pattern: string; RegEx pattern for file name where single resulting group is the digital value
+    Returns:
+        1) train_traces: dictionary;
+        Key: string; Training folder name used to create trace arrays
+        Value: tuple; tuple[0] = digital value; parsed using file_pattern group
+        tuple[1] = array of np.float32; raw trace values converted to np.float32
+        2) test_traces: dictionary;
+        Key: string; Testing folder name used to create trace arrays
+        Value: tuple; tuple[0] = digital value; parsed using file_pattern group
+        tuple[1] = array of np.float32; raw trace values converted to np.float32
+    '''
+    train_traces = defaultdict(list)
+    test_traces = defaultdict(list)
     # First get traces for all training folders
-    for folder_name, file_list in train_match_dict.items():
+    for folder_name, file_list in train_dict.items():
         folder_path = os.path.join(trace_root, folder_name)
         if os.path.exists(folder_path):
             print(f"Handling: {folder_name}...")
@@ -65,12 +67,18 @@ def create_trace_arrays(trace_root, train_match_dict, test_match_dict):
             for file_name in file_list:
                 file_path = os.path.join(folder_path, file_name)
                 folder_traces.append(create_array(file_path))
-            train_traces[folder_name] = (file_name, folder_traces)
+                match = re.match(file_pattern, file_name)
+                if match:
+                    raw_digital_val = match.group(1)
+                else:
+                    print(f"ERROR: Invalid file name format for - \"{file_name}\"")
+                    continue
+                train_traces[folder_name].append((raw_digital_val, folder_traces))
         else:
             raise KeyError(f"Trace folder does not exist: {folder_path}")  
 
     # Next, get traces for all testing folders
-    for folder_name, file_list in test_match_dict.items():
+    for folder_name, file_list in test_dict.items():
         folder_path = os.path.join(trace_root, folder_name)
         if os.path.exists(folder_path):
             print(f"Handling: {folder_name}...")
@@ -78,7 +86,13 @@ def create_trace_arrays(trace_root, train_match_dict, test_match_dict):
             for file_name in file_list:
                 file_path = os.path.join(folder_path, file_name)
                 folder_traces.append(create_array(file_path))
-            test_traces[folder_name] = (file_name, folder_traces)
+                match = re.match(file_pattern, file_name)
+                if match:
+                    raw_digital_val = match.group(1)
+                else:
+                    print(f"ERROR: Invalid file name format for - \"{file_name}\"")
+                    continue
+                test_traces[folder_name].append((raw_digital_val, folder_traces))
         else:
             raise KeyError(f"Trace folder does not exist: {folder_path}")  
     
