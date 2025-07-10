@@ -14,8 +14,8 @@ from hyperparams import adc_num, adc_bitwidth, train_batch, split_digital, norma
 # Directory hyperparameters
 from hyperparams import sub_folder, sub_folder_name, train_trace_folder_names, test_trace_folder_names, trace_type, file_pattern
 # 2) File imports
-from src.cnn_multi_pixel.preprocessing_exp import get_avg_exponent
-from src.cnn_multi_pixel.preprocessing_array import create_trace_arrays
+from src.cnn_multi_pixel.preprocessing_file import get_matching_files
+from src.cnn_multi_pixel.preprocessing_array import create_raw_trace_arrays
 
 if __name__ == "__main__":
     # 0) Get inputs
@@ -39,32 +39,24 @@ if __name__ == "__main__":
     trace_root = 'root'
     train_folder_list = []
     test_folder_list = []
-    
-    # 0) Select if initial or additional run
-    # Assuming getting from parameter "is_initial"
+    # Select if initial or additional run
     is_initial = True
-    saved_avg_exp = 0
+    
+    # 1) Check if there are any saved raw datasets that correspond to required folder
+    # IMPLEMENT AFTER dataset_raw
+    # 2) For each new folder(no dataset exists) get file list
+    train_dict, test_dict = get_matching_files(trace_root, train_folder_list, test_folder_list, file_pattern)
+    # 3) Convert all files to np.arrays; run subsampling if required
+    train_dict, test_dict = create_raw_trace_arrays(trace_root, train_dict, test_dict, file_pattern)
+    # 4) Create raw dataset
+    # 5) Save raw dataset
+    # 6) Normalize all datasets
     if is_initial:
-        # 1) Preprocessing
-        # 1-1) Get average exponent from all files, BOTH training AND testing
-        print("(1) Obtaining average exponent from both training and testing files...")
-        avg_exponent = get_avg_exponent(trace_root, train_folder_list, test_folder_list)
-        print(f"\tObtained average exponent value: {avg_exponent}")
-        # 1-2) Read files, store RAW values into np arrays
-        print(f"(2) Creating raw trace arrays...")
-        train_traces, test_traces = create_trace_arrays(trace_root, train_folder_list, test_folder_list, avg_exponent)
+        print("lol")
     else:
-        # 0) Loading saved values
-        # Get saved average exponent value
-        print("Saved exponent value: VALUE HERE")
-        # 1) Preprocessing
-        # 1-1) Get average exponent from additional files, BOTH training AND testing
-        print("(1) Obtaining average exponent of additional files for both training and testing...")
-        avg_exponent = get_avg_exponent(trace_root, train_folder_list, test_folder_list, saved_avg_exp)
-        
-        # 1-3) Read files, store RAW values into np arrays
-
-    # 2) Creating dataset/dataloaders
-    # 3) Create CNN
-    # 4) Run training
-    # 5) Run testing
+        print("lol")
+    # 7) Create dataloader
+    # 8) Create CNN
+    # 9) Run training
+    # 10) Run testing
+    # 11) Print results
