@@ -21,7 +21,6 @@ The minimum required Python version is **3.12**. If you do NOT have a version of
 poetry config virtualenvs.in-project true
 ```
 Note that .venv is included in the .gitignore file of the repo.
-
 5. Run the following command to create a virtual environment and install all specified dependencies:
 ```
 poetry install

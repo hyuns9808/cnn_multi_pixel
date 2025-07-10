@@ -3,17 +3,16 @@ import re
 import os
 
 from torch import norm
-from subsampler import sample_file
 
+''' 
+Function that extracts all values from a SINGLE power trace file and saves it as a np.array
+Does NOT normalize the values; stores RAW traces
+Input:
+    1) file_path: string; name of power trace file
+Returns:
+    1) np.array(trace_array): np.array; np.array of all values saved as np.float32
+'''
 def create_array(file_path):
-    ''' 
-    Function that extracts all values from a SINGLE power trace file and saves it as a np.array
-    Does NOT normalize the values; stores RAW traces
-    Input:
-        1) file_path: string; name of power trace file
-    Returns:
-        1) np.array(trace_array): np.array; np.array of all values saved as np.float32
-    '''
     trace_array = []
     pattern = re.compile(r'^\s*time\s+-i\(vdd\)\s*$')
     with open(file_path, 'r') as f:
@@ -38,24 +37,23 @@ def create_array(file_path):
             trace_array.append(value)
     return np.array(trace_array)
 
-def create_trace_arrays(trace_root, train_match_dict, test_match_dict, sampling=False, sample_info=None):
-    ''' 
-    Function that creates list of np arrays for each train/test dataset
-    Input:
-        1) trace_root: string; Raw path to trace folder directory
-        2) train_folder_list: array; List of training trace folders to get avg exponent
-        3) test_folder_list: array; List of testing trace folders to get avg exponent
-    Returns:
-        1) train_traces: dictionary;
-        Key: string; Training folder name used to create trace arrays
-        Value: tuple; tuple[0] = file name
-        tuple[1] = array of np.float32; Array of normalized values converted to np.float32
-        2) test_traces: dictionary;
-        Key: string; Testing folder name used to create trace arrays
-        Value: tuple; 
-        tuple[0] = file name
-        tuple[1] = array of np.float32; Array of normalized values converted to np.float32
-    '''
+''' 
+Function that creates list of np arrays for each train/test dataset
+Input:
+    1) trace_root: string; Raw path to trace folder directory
+    2) train_folder_list: array; List of training trace folders to get avg exponent
+    3) test_folder_list: array; List of testing trace folders to get avg exponent
+Returns:
+    1) train_traces: dictionary;
+    Key: string; Training folder name used to create trace arrays
+    Value: tuple; tuple[0] = file name
+    tuple[1] = array of np.float32; Array of normalized values converted to np.float32
+    2) test_traces: dictionary;
+    Key: string; Testing folder name used to create trace arrays
+    Value: tuple; tuple[0] = file name
+    tuple[1] = array of np.float32; Array of normalized values converted to np.float32
+'''
+def create_trace_arrays(trace_root, train_match_dict, test_match_dict):
     train_traces = {}
     test_traces = {}
     # First get traces for all training folders
@@ -66,14 +64,7 @@ def create_trace_arrays(trace_root, train_match_dict, test_match_dict, sampling=
             folder_traces = []
             for file_name in file_list:
                 file_path = os.path.join(folder_path, file_name)
-                if sampling == True:
-                    try:
-                        sample_interval, max_samples, sample_mode, column = sample_info
-                        folder_traces.append(sample_file(file_path, sample_interval, max_samples, sample_mode, column))
-                    except Exception as e:
-                        raise(f"ERROR: {e}")
-                else:
-                    folder_traces.append(create_array(file_path))
+                folder_traces.append(create_array(file_path))
             train_traces[folder_name] = (file_name, folder_traces)
         else:
             raise KeyError(f"Trace folder does not exist: {folder_path}")  
@@ -86,14 +77,7 @@ def create_trace_arrays(trace_root, train_match_dict, test_match_dict, sampling=
             folder_traces = []
             for file_name in file_list:
                 file_path = os.path.join(folder_path, file_name)
-                if sampling == True:
-                    try:
-                        sample_interval, max_samples, sample_mode, column = sample_info
-                        folder_traces.append(sample_file(file_path, sample_interval, max_samples, sample_mode, column))
-                    except Exception as e:
-                        raise(f"ERROR: {e}")
-                else:
-                    folder_traces.append(create_array(file_path))
+                folder_traces.append(create_array(file_path))
             test_traces[folder_name] = (file_name, folder_traces)
         else:
             raise KeyError(f"Trace folder does not exist: {folder_path}")  
