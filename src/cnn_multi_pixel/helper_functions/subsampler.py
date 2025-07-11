@@ -9,7 +9,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from src.cnn_multi_pixel.dataset.dataset_raw import TraceDatasetRaw
 
 DTYPE = np.float64
 
@@ -145,29 +144,39 @@ def sample_file(fpath, sample_interval, max_samples, sample_mode="AVG", column=0
 
         return val_arr, tstart, tstop
 
-# ------------------------------------------------
-# func: sample_raw_dataset
-# Author: Calvin Yang
-# - New function to apply above sampling method on a raw dataset
-# - Same functionaliy, only difference is that input is a raw dataset
-# ------------------------------------------------
+'''
+    Author: Calvin(Hyunsoo) Yang
+    Function used to sample a raw dataset
+    Inputs:
+        1) raw_dataset: TraceDatasetRaw; Raw trace dataset to sample
+        2) sample_interval: float; Standard interval between sampled trace values
+        3) sample_duration: float; Total time to be sampled
+        4) sample_mode: string; Variable used to selecting specific sampling function
+    Returns:
+        1) new_sampled_dataset: TraceDatasetSampled; Newly sampled raw trace dataset
+    '''
 
-def sample_raw_dataset(raw_dataset, sample_interval, max_samples, sample_mode="AVG"):
+def sample_raw_dataset(raw_dataset, sample_interval, sample_duration, sample_mode):
     f = sample_func_gen(sample_mode)
     l = select_func_gen(f'B{sample_mode}')
 
     tstart = 0
     tstop  = 1
     
-    digital_dict = raw_dataset.get_digital_dict()
+    folder_name = raw_dataset.get_folder_name()
+    raw_dict    = raw_dataset.get_raw_dict()
+    max_samples = int(sample_duration / sample_interval)
+    sample_info = (sample_interval, sample_duration, sample_mode)
 
-    for digital_value, time_val_tuple_list in digital_dict.items():
+    for digital_value, time_val_tuple_list in raw_dict.items():
+        # Variables used to go through all values in given time_val tuple list
         digital_len = len(time_val_tuple_list)
         counter = 1
         tim_arr = [] # For debugging
         val_arr = []
         val_win = []
         
+        # Get first value
         stim, value = time_val_tuple_list[0][0], time_val_tuple_list[0][1]
         stim = DTYPE(stim)
         tstart = stim
@@ -178,6 +187,7 @@ def sample_raw_dataset(raw_dataset, sample_interval, max_samples, sample_mode="A
         val_arr.append(value)
         tim_arr.append(ptim)
 
+        # Go through all values in given time_val tuple list
         while counter != digital_len:
             if len(val_arr) == max_samples: break
             stim, value = time_val_tuple_list[counter][0], time_val_tuple_list[counter][1]
@@ -236,9 +246,9 @@ def sample_raw_dataset(raw_dataset, sample_interval, max_samples, sample_mode="A
         tstop = wtim
         
         # Create new sampled dataset
-        new_sampled_dataset = TraceDatasetRaw()
+        new_sampled_dataset = TraceDatasetSampled(folder_name, val_arr, sample_info)
 
-        return val_arr, tstart, tstop
+        return new_sampled_dataset
 
 # ------------------------------------------------
 # func: do_parse

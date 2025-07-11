@@ -9,5 +9,6 @@ env.bak/
 venv.bak/
 # Any subdirectories under ./trace_files
 trace_files/*
+datasets/*
 # py_cache files
 src/cnn_multi_pixel/__pycache__
