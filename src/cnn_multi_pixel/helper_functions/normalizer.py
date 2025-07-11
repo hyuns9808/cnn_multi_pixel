@@ -1,5 +1,6 @@
 import numpy as np
 # Change based on CNN pickle implementation
+# ALSO need to change normalization on SAMPLED DATASET
 import json
 
 # Class used to normalize trace arrays

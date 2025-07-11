@@ -49,7 +49,8 @@ Does NOT normalize the values; stores RAW traces
 Input:
     1) trace_root: string; Full path to trace folder directory
     2) folder_name: string; Name of target folder
-    3) valid_file_pattern: string; RegEx expression for correct file naming convention
+    3) file_name_pattern: string; RegEx expression for correct file naming convention
+    4) file_label_function: string; Function used to get label(digital value) from file name
 Returns:
     1) folder_name: string; Name of converted folder
     2) folder_dict: dictionary; Each entry represents a single file within the folder
@@ -58,42 +59,35 @@ Returns:
     time_val_tuple[0]: np.float64; time value
     time_val_tuple[1]: np.float64; trace value
 '''
-def convert_folder(trace_root, folder_name, valid_file_pattern):
+def convert_folder(trace_root, folder_name, file_name_pattern, file_label_function):
     folder_dict = {}
     folder_path = os.path.join(trace_root, folder_name)
     if os.path.exists(folder_path):
         print(f"\tHandling folder \"{folder_name}\"...")
         for file in os.listdir(folder_path):
-            match = valid_file_pattern.search(file)
+            match = file_name_pattern.search(file)
             if match:
-                digital_val = match.group(0)
+                label_function = eval((file_label_function or "lambda gs: int(gs[0])"), globals(), {})
+                digital_val = label_function(match.groups())
                 folder_dict[digital_val] = convert_file(os.path.join(folder_path, file))
     else:
         raise FileNotFoundError(f"ERROR - The following trace folder is missing: {folder_name} ")
     return folder_dict
 
 
-def get_train_test_traces(trace_root, train_dict, test_dict):
+def create_train_test_raw_traces(trace_root, train_pattern_dict, test_pattern_dict):
     ''' 
     Function that gets traces from all training/testing folders
     Input:
         1) trace_root: string; Full path to trace folder directory
-        2) train_pattern_dict: dictionary;
+        2,3) train_pattern_dict & test_pattern_dict: dictionary;
         Key: string; Folder name
-        Value: string; RegEx pattern for correct file name where single resulting group is the digital value
-        3) test_pattern_dict: dictionary;
-        Key: string; Folder name
-        Value: string; RegEx pattern for correct file name where single resulting group is the digital value
+        Value: tuple; 
+            tuple[0]: string; RegEx pattern for correct file name with group(s)
+            tuple[1]: string; RegEx pattern for correct label function to get digital value from file name
     Returns:
-        1) train_traces: dictionary;
+        1, 2) train_traces & test_traces: dictionary;
         Key: string; Training folder name
-        Value: dictionary; Each entry represents a file within the target folder
-            Key: int; Digital value of file
-            Value: list of tuples; list of time_val_tuple tuples of converted files
-            time_val_tuple[0]: np.float64; time value
-            time_val_tuple[1]: np.float64; trace value
-        2) test_traces: dictionary;
-        Key: string; Testing folder name
         Value: dictionary; Each entry represents a file within the target folder
             Key: int; Digital value of file
             Value: list of tuples; list of time_val_tuple tuples of converted files
@@ -103,11 +97,11 @@ def get_train_test_traces(trace_root, train_dict, test_dict):
     train_traces = {}
     test_traces = {}
     # First get traces for all training folders
-    for folder_name, file_pattern in train_dict.items():
-        train_traces.append(convert_folder(trace_root, folder_name, file_pattern))
+    for folder_name, file_and_label_regex in train_pattern_dict.items():
+        train_traces.append(convert_folder(trace_root, folder_name, file_and_label_regex[0], file_and_label_regex[1]))
 
     # Next, get traces for all testing folders
-    for folder_name, file_pattern in test_dict.items():
-        test_traces.append(convert_folder(trace_root, folder_name, file_pattern))
+    for folder_name, file_and_label_regex in test_pattern_dict.items():
+        test_traces.append(convert_folder(trace_root, folder_name, file_and_label_regex[0], file_and_label_regex[1]))
     
     return train_traces, test_traces
