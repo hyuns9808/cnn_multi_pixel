@@ -14,8 +14,7 @@ from hyperparams import adc_num, adc_bitwidth, train_batch, split_digital, norma
 # Directory hyperparameters
 from hyperparams import sub_folder, sub_folder_name, train_trace_folder_names, test_trace_folder_names, trace_type, file_pattern
 # 2) File imports
-from src.cnn_multi_pixel.preprocessing_file import get_matching_files
-from src.cnn_multi_pixel.preprocessing_array import create_raw_trace_arrays
+from src.cnn_multi_pixel.preprocessing.preprocessing_array import get_train_test_traces
 
 if __name__ == "__main__":
     # 0) Get inputs
@@ -37,35 +36,27 @@ if __name__ == "__main__":
     
     # ASSUMING FILE INPUT HERE
     trace_root = 'root'
-    train_folder_list = []
-    test_folder_list = []
-<<<<<<< HEAD
-
-    # 1) Preprocessing
-    # 1-1) Get average exponent from all files, BOTH training AND testing
-    print("(1) Obtaining average exponent from both training and testing files...")
-    avg_exponent = get_avg_exponent(trace_root, train_folder_list, test_folder_list)
-    print(f"\tObtained average exponent value: {avg_exponent}")
-    # 1-2) Read files, store RAW values into np arrays
-    print(f"(2) Creating trace arrays...")
-    train_traces, test_traces = create_trace_arrays(trace_root, train_folder_list, test_folder_list, avg_exponent)
-
-    # 2) Creating dataset/dataloaders
-    # 3) Create CNN
-    # 4) Run training
-    # 5) Run testing
-=======
+    train_dict = {}
+    test_dict = {}
     # Select if initial or additional run
     is_initial = True
     
-    # 1) Check if there are any saved raw datasets that correspond to required folder
+    # 1) Check if there are any saved raw or subsampled datasets that correspond to required folder
     # IMPLEMENT AFTER dataset_raw
-    # 2) For each new folder(no dataset exists) get file list
-    train_dict, test_dict = get_matching_files(trace_root, train_folder_list, test_folder_list, file_pattern)
-    # 3) Convert all files to np.arrays; run subsampling if required
-    train_dict, test_dict = create_raw_trace_arrays(trace_root, train_dict, test_dict, file_pattern)
-    # 4) Create raw dataset
-    # 5) Save raw dataset
+    '''
+    2) Convert all training/testing folders into raw traces
+    Each dictionary:
+        Key: string; Folder name
+        Value: dictionary; Each entry represents a file within the target folder
+            Key: int; Digital value of file
+            Value: list of tuples; list of time_val_tuple tuples of converted files
+            time_val_tuple[0]: np.float64; time value
+            time_val_tuple[1]: np.float64; trace value
+    '''
+    train_dict, test_dict = get_train_test_traces(trace_root, train_dict, test_dict, file_pattern)
+    # 3) Create and save raw dataset
+    # 4) Run subsamplig
+    # 5) Create and save subsampled dataset
     # 6) Normalize all datasets
     if is_initial:
         print("lol")
@@ -76,4 +67,3 @@ if __name__ == "__main__":
     # 9) Run training
     # 10) Run testing
     # 11) Print results
->>>>>>> split
