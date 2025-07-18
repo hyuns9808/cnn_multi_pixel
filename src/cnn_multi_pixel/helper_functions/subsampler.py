@@ -9,6 +9,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from src.cnn_multi_pixel.dataset.dataset_sampled import TraceDatasetSampled
 
 DTYPE = np.float64
 
@@ -159,6 +160,8 @@ def sample_file(fpath, sample_interval, max_samples, sample_mode="AVG", column=0
 def sample_raw_dataset(raw_dataset, sample_interval, sample_duration, sample_mode):
     f = sample_func_gen(sample_mode)
     l = select_func_gen(f'B{sample_mode}')
+
+    # Get rid of tstart, tstop?
 
     tstart = 0
     tstop  = 1
